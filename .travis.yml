@@ -60,30 +60,30 @@ before_install:
 install:
   # Set path for pkg-config to find zeromq, otherwise install of zeromq4-haskell fails.
   - export PKG_CONFIG_PATH=$HOME/zeromq/lib/pkgconfig/
-  - stack setup --resolver=$RESOLVER
-  - stack build --dependencies-only --resolver=$RESOLVER
+  - stack --no-terminal setup --resolver=$RESOLVER
+  - stack --no-terminal build --dependencies-only --resolver=$RESOLVER
 
 script:
   - export LD_LIBRARY_PATH=$HOME/zeromq/lib
-  - stack test --resolver=$RESOLVER
+  - stack --no-terminal test --resolver=$RESOLVER
   - |
     set -e
     if $DISPLAY; then
         TOP=$(pwd)
         for PACKAGE in ihaskell-display/*; do
             cd "$TOP/$PACKAGE";
-            stack build --resolver=$RESOLVER;
+            stack --no-terminal build --resolver=$RESOLVER;
             cd "$TOP";
         done
 
         # Ensure that ipython-kernel examples build successfully.
-        stack build ipython-kernel --flag ipython-kernel:examples
+        stack --no-terminal build ipython-kernel --flag ipython-kernel:examples
 
         # Ensure that IHaskell notebook remains unchanged.
         # Run the notebook to regenerate the outputs, then compare the new notebook to the old one.
-        stack install --stack-yaml=stack-full.yaml
-        stack exec -- ihaskell install --stack
-        stack exec -- jupyter nbconvert --to=notebook --execute --stdout notebooks/IHaskell.ipynb > ~/ihaskell-out.ipynb
+        stack --no-terminal install --stack-yaml=stack-full.yaml
+        stack --no-terminal exec -- ihaskell install --stack
+        stack --no-terminal exec -- jupyter nbconvert --to=notebook --execute --stdout notebooks/IHaskell.ipynb > ~/ihaskell-out.ipynb
 
         # Images are rendered differently on different systems, so filter them out in the comparison
         diff <(grep -v image/png ~/ihaskell-out.ipynb) <(grep -v image/png notebooks/IHaskell.ipynb)
